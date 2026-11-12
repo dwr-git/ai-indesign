@@ -54,6 +54,9 @@ WORK="$CARGO_TARGET_DIR/web-package"
 rm -rf "$WORK"
 mkdir -p "$WORK/$NAME/app"
 cp -R "$BOOT/." "$WORK/$NAME/"
+# wasm-bindgen's inline JS snippets (eframe's text agent): the app's glue imports them relative to
+# itself, so they go next to it in app/.
+if [[ -d "$APP/snippets" ]]; then cp -R "$APP/snippets" "$WORK/$NAME/app/"; fi
 # Fonts the app fetches on demand from ./fonts/ (craft-fonts builds only).
 if [[ -d "$APP/fonts" ]]; then cp -R "$APP/fonts" "$WORK/$NAME/"; fi
 # The app's glue by its content hash, named in parts.txt (`# loader …`): a fixed name could come

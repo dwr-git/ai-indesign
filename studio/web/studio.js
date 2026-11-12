@@ -1906,7 +1906,11 @@
     const fonts = Fonts.start();
     await sleep(300);
     root.classList.add('ready');
-    if (store.get('open', CFG.openOnStart)) setOpen(true);
+    if (store.get('open', CFG.openOnStart)) {
+      setOpen(true);
+      // Холст стал уже: страница — целиком в окне.
+      setTimeout(() => PC.exec('view.fitPage').catch(() => {}), 700);
+    }
     commands().catch(() => {});
     watchTheme();
     Gallery.start();
