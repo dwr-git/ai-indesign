@@ -15,7 +15,8 @@ pub(super) fn download_document_as(app: &mut DesignApp, save_as: bool) -> Result
         let path = app.session.active().and_then(|d| d.path.clone());
         match to_page(&name, path.as_deref(), &bytes, save_as) {
             Ok(true) => {
-                app.run("file.saveAs", json!({"path": name}))?;
+                // Saved: the document keeps its path (the page names it after its file there).
+                app.run("file.saveAs", json!({"path": path.as_deref().unwrap_or(&name)}))?;
                 return Ok(json!({"savedToPage": name, "bytes": bytes.len()}));
             }
             Ok(false) => {}
