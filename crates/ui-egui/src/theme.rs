@@ -14,7 +14,7 @@ pub enum Brightness {
     Light,
     /// Accessibility: black chrome, white text, yellow selection and focus.
     HighContrast,
-    /// AI-InDesign's Brand theme: navy chrome, the brand's blue-violet accent, solid black menus
+    /// AI Вёрстка's Brand theme: navy chrome, the brand's blue-violet accent, solid black menus
     /// and windows with a strong shadow, and the brand backdrop round the pages (which stay white).
     Brand,
 }
@@ -54,7 +54,7 @@ pub struct Tokens {
     /// The Brand theme: black menus and windows with a strong shadow, the brand backdrop round
     /// the pages ([`paint_brand_backdrop`]).
     pub brand: bool,
-    /// AI-InDesign's Light and Dark: our neumorphic palettes (soft blue-grey chrome, rounded
+    /// AI Вёрстка's Light and Dark: our neumorphic palettes (soft blue-grey chrome, rounded
     /// controls, tinted soft shadows).
     pub neu: bool,
     /// Text and icons drawn on `accent_strong` (white, but dark on the Dark theme's light blue).
@@ -158,7 +158,7 @@ impl Tokens {
             caption_close_text: Color32::WHITE,
         };
         match b {
-            // AI-InDesign's Dark: the NeuDark palette (chrome #262D3A, cards #282F3D, canvas #1B202A,
+            // AI Вёрстка's Dark: the NeuDark palette (chrome #262D3A, cards #282F3D, canvas #1B202A,
             // fields #202632, text #E4EBF6 / #C4CFE0 / #A0ADC2, accent #5CA8FF with dark text on it).
             Brightness::Dark => Tokens {
                 neu: true,
@@ -291,7 +291,7 @@ impl Tokens {
                 tab_strip: hex(0xa6a6a6),
                 ..dark
             },
-            // AI-InDesign's Light: the NeuLight palette (chrome #E4ECF6, cards #E6EEF8, canvas #D6E0ED,
+            // AI Вёрстка's Light: the NeuLight palette (chrome #E4ECF6, cards #E6EEF8, canvas #D6E0ED,
             // fields #DCE6F3, text #1E2C42 / #34445E / #4E5E78, accent #3480E2, accent text #1652A8).
             Brightness::Light => Tokens {
                 dark: false,

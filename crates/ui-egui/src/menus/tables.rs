@@ -637,7 +637,7 @@ pub const MENUS: &[(&str, &[&str])] = &[
     (
         "Help",
         &[
-            // AI-InDesign works offline: no community, website or update links.
+            // AI Вёрстка works offline: no community, website or update links.
             "cmd:file.newSample",
             "-",
             "ui:help.about",

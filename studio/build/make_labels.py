@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Russian names for the assistant's command search.
 
-Reads the Russian interface catalog AI-InDesign is built with (crates/ui-egui/src/i18n/ru.rs: rows
+Reads the Russian interface catalog AI Вёрстка is built with (crates/ui-egui/src/i18n/ru.rs: rows
 `("English", "Русский"),`, on one line or as rustfmt's block form) and writes studio/ru-labels.json:
 
     {"text": {"Place…": "Поместить…", ...}}

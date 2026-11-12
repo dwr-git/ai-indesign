@@ -224,7 +224,10 @@ pub fn app_bar(app: &mut DesignApp, ui: &mut egui::Ui) {
                 // (Drag-scrolling is touch-only by default, so a mouse drag on the bar moves the window.)
                 egui::ScrollArea::horizontal().id_salt("app_bar_scroll").auto_shrink([false, false]).show(ui, |ui| {
                     ui.horizontal_centered(|ui| {
-                        if icons::button(ui, "home", home, app.session.active().is_none(), crate::i18n::tr(&app.ui.language, "Home")).clicked() {
+                        // On the web the house at the right end leads back to the site, so the start
+                        // screen's button here shows pages: one house per bar.
+                        let start_icon = if app.services.go_home.is_some() { "panel-pages" } else { "home" };
+                        if icons::button(ui, start_icon, home, app.session.active().is_none(), crate::i18n::tr(&app.ui.language, "Home")).clicked() {
                             app.session_home();
                         }
                         ui.add_space(6.0);
@@ -332,8 +335,8 @@ pub fn app_bar(app: &mut DesignApp, ui: &mut egui::Ui) {
             });
             // Centred title.
             let title = match app.session.active() {
-                Some(d) => format!("AI-InDesign — {}", crate::rtl::isolate(&d.title())),
-                None => "AI-InDesign".to_string(),
+                Some(d) => format!("AI Вёрстка — {}", crate::rtl::isolate(&d.title())),
+                None => "AI Вёрстка".to_string(),
             };
             // Centred between the menus and the right-hand controls; left out when it won't fit.
             let galley = crate::rtl::plain(ui.ctx(), &title, egui::FontId::proportional(11.5), t.text);

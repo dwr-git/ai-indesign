@@ -118,7 +118,7 @@ pub(crate) fn show(app: &mut DesignApp, ctx: &egui::Context) {
     #[cfg(target_arch = "wasm32")]
     if app.updates_rt.manual_window_open {
         let mut open = true;
-        let title = crate::i18n::tr(&app.ui.language, "AI-InDesign Updates");
+        let title = crate::i18n::tr(&app.ui.language, "AI Вёрстка Updates");
         let ok_label = crate::i18n::tr(&app.ui.language, "OK");
         egui::Window::new(title)
             .open(&mut open)

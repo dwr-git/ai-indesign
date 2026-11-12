@@ -1,5 +1,5 @@
-//! Help › About AI-InDesign: tabs About · Contributors · Models. About shows a neutral mark drawn
-//! in code, the version and where the app comes from (DesignCraft by the ArtCraft team); AI-InDesign
+//! Help › About AI Вёрстка: tabs About · Contributors · Models. About shows a neutral mark drawn
+//! in code, the version and where the app comes from (DesignCraft by the ArtCraft team); AI Вёрстка
 //! works offline, so it has no links out of the page. Contributors and Models are the compiled-in
 //! credits (`crate::credits`).
 
@@ -11,7 +11,7 @@ use crate::theme::{Tokens, semibold};
 /// The About window's tabs, in `UiState::about_tab` order (`help.about {tab}` names them in lowercase).
 pub const ABOUT_TABS: [&str; 3] = ["About", "Contributors", "Models"];
 
-/// AI-InDesign's mark, drawn in code: a page with a headline, two columns of text and a picture
+/// AI Вёрстка's mark, drawn in code: a page with a headline, two columns of text and a picture
 /// frame, on an accent tile.
 pub fn paint_mark(ui: &egui::Ui, rect: Rect, accent: Color32) {
     let p = ui.painter();
@@ -84,7 +84,7 @@ pub fn show(app: &mut DesignApp, ctx: &egui::Context) {
             let (r, _) = ui.allocate_exact_size(vec2(72.0, 72.0), Sense::hover());
             paint_mark(ui, r, t.accent);
             ui.add_space(6.0);
-            ui.label(crate::rtl::widget(ui, egui::RichText::new("AI-InDesign").font(semibold(26.0)).color(t.text_strong)));
+            ui.label(crate::rtl::widget(ui, egui::RichText::new("AI Вёрстка").font(semibold(26.0)).color(t.text_strong)));
             crate::rtl::label(
                 ui,
                 egui::RichText::new(format!("{} {}", crate::i18n::tr(&app.ui.language, "Version"), env!("CARGO_PKG_VERSION")))
@@ -110,9 +110,13 @@ pub fn show(app: &mut DesignApp, ctx: &egui::Context) {
             ));
             ui.label(crate::rtl::widget(
                 ui,
+                egui::RichText::new(crate::i18n::tr(&app.ui.language, "InDesign is a trademark of Adobe. AI Вёрстка is not affiliated with Adobe and works with files in its formats.")).size(12.0).color(t.text_dim),
+            ));
+            ui.label(crate::rtl::widget(
+                ui,
                 egui::RichText::new(crate::i18n::tr(
                     &app.ui.language,
-                    "MIT OR Apache-2.0. Copyright (c) 2026 ArtCraft Team, the DesignCraft and AI-InDesign contributors.",
+                    "MIT OR Apache-2.0. Copyright (c) 2026 ArtCraft Team, the DesignCraft and AI Вёрстка contributors.",
                 ))
                 .size(11.0)
                 .color(t.text_dim),

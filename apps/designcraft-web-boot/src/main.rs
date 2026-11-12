@@ -1,4 +1,4 @@
-//! Starts AI-InDesign in the browser from compressed parts of its WebAssembly.
+//! Starts AI Вёрстка in the browser from compressed parts of its WebAssembly.
 //!
 //! Static hosts cap the size of one file (Cloudflare Pages: 25 MiB), and the app's wasm is at
 //! that size. `packaging/web/package.sh` gzips it and cuts it into parts listed in
@@ -275,12 +275,12 @@ mod boot {
                     Ok(()) => return,
                     Err(e) => e,
                 };
-                web_sys::console::error_2(&JsValue::from_str("ai-indesign-boot: could not start AI-InDesign:"), &error);
+                web_sys::console::error_2(&JsValue::from_str("ai-indesign-boot: could not start AI Вёрстка:"), &error);
                 let Some(&wait) = RETRY_AFTER.get(attempt) else {
-                    say("AI-InDesign не скачался с сервера. Проверьте, что папка скопирована целиком, и попробуйте ещё раз: ", true);
+                    say("AI Вёрстка не скачался с сервера. Проверьте, что папка скопирована целиком, и попробуйте ещё раз: ", true);
                     return;
                 };
-                say("Загрузка AI-InDesign\u{2026} (скачать не вышло, пробую ещё раз)", false);
+                say("Загрузка AI Вёрстка\u{2026} (скачать не вышло, пробую ещё раз)", false);
                 sleep(wait).await;
                 attempt += 1;
             }

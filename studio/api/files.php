@@ -1,5 +1,5 @@
 <?php
-// studio/api/files.php — «Мои публикации» AI-InDesign на вашем сервере. У каждого пользователя своя папка.
+// studio/api/files.php — «Мои публикации» AI Вёрстка на вашем сервере. У каждого пользователя своя папка.
 //
 //   GET  files.php                          → {ok, user, files: [{name, size, modified}], limit}
 //   GET  files.php?action=load&name=…       → сама публикация (.designcraft, .idml, .indd, .indt), application/octet-stream
@@ -11,7 +11,7 @@
 //
 // Шрифты организации: папка fonts рядом с папками пользователей (storage/ai-indesign/fonts). Положите
 // туда шрифты, на которые у организации есть лицензия (например, фирменные гарнитуры или Times New Roman,
-// Arial из Windows): AI-InDesign будет верстать ими у всех пользователей.
+// Arial из Windows): AI Вёрстка будет верстать ими у всех пользователей.
 //
 // Где лежат файлы: AI_INDESIGN_DATA_DIR из .env, иначе storage/ai-indesign рядом с корнем сайта
 // (/app/storage/ai-indesign при корне /app/src — вне корня, nginx её не отдаёт; создаётся сама),
@@ -114,7 +114,7 @@ const FILES_MAX_BYTES = 512 * 1024 * 1024;
 const FILES_MAX_COUNT = 2000;
 /** Типы документов, которые хранятся (расширение имени на сервере и на диске). */
 // .designcraft — родной формат (сохраняет всё), .idml — обмен с InDesign; .indd/.indt — только
-// открыть (AI-InDesign читает их, а сохраняет в .designcraft).
+// открыть (AI Вёрстка читает их, а сохраняет в .designcraft).
 const FILES_EXTS = ['designcraft', 'idml', 'indd', 'indt'];
 const FILES_STORED = '/^[0-9a-f]{32}\.(designcraft|idml|indd|indt)$/';
 /** Первые 16 байт файла InDesign (.indd, .indt). */
@@ -138,7 +138,7 @@ function fonts_dir(string $root): string
         @mkdir($dir, 0770, true);
         @file_put_contents("$dir/README.txt", "Положите сюда шрифты, на которые у организации есть лицензия (.ttf, .otf),\n"
             . "например фирменные гарнитуры или Times New Roman, Arial из папки C:\\Windows\\Fonts.\n"
-            . "AI-InDesign загрузит их у всех пользователей, и публикации будут свёрстаны теми же шрифтами.\n");
+            . "AI Вёрстка загрузит их у всех пользователей, и публикации будут свёрстаны теми же шрифтами.\n");
     }
     return $dir;
 }

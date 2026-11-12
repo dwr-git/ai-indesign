@@ -5,7 +5,7 @@ pub(super) fn download_document(app: &mut DesignApp) -> Result<Value, String> {
     download_document_as(app, false)
 }
 
-/// Save the active document in the browser: to the page when it keeps saves (AI-InDesign's
+/// Save the active document in the browser: to the page when it keeps saves (AI Вёрстка's
 /// publications on the server; `save_as` says Save As was chosen), else as a download.
 pub(super) fn download_document_as(app: &mut DesignApp, save_as: bool) -> Result<Value, String> {
     let name = app.session.active().map(|d| format!("{}.designcraft", d.doc.title)).ok_or("no document")?;

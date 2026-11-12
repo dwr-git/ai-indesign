@@ -105,7 +105,7 @@ pub enum AppMenuItem {
 
 /// The macOS application menu. Settings… is `app.preferences`, which `native_menu_tree` leaves out of Edit.
 pub const MAC_APP_MENU: &[AppMenuItem] = &[
-    AppMenuItem::Cmd { id: "dc-about", label: "About AI-InDesign", command: "help.about" },
+    AppMenuItem::Cmd { id: "dc-about", label: "About AI Вёрстка", command: "help.about" },
     AppMenuItem::Cmd { id: "dc-updates", label: "Check for Updates…", command: "help.checkForUpdates" },
     AppMenuItem::Sep,
     AppMenuItem::Cmd { id: "dc-settings", label: "Settings…", command: "app.preferences" },
@@ -118,7 +118,7 @@ pub const MAC_APP_MENU: &[AppMenuItem] = &[
     AppMenuItem::ShowAll,
     AppMenuItem::Sep,
     // Not the predefined Quit: it terminates the app at once, past the unsaved-changes prompt.
-    AppMenuItem::Cmd { id: "dc-quit", label: "Quit AI-InDesign", command: "app.quit" },
+    AppMenuItem::Cmd { id: "dc-quit", label: "Quit AI Вёрстка", command: "app.quit" },
 ];
 
 /// A label as the macOS menu bar library takes it: it reads "&" as a mnemonic marker and drops

@@ -75,7 +75,7 @@ pub fn show(app: &mut DesignApp, ctx: &egui::Context, sel: Rect, canvas: Rect) {
                         ui.ctx().set_cursor_icon(egui::CursorIcon::Grab);
                     }
                     let text_frame = panels::sel_info(app).is_some_and(|i| i.is_text && i.count == 1);
-                    // Web (AI-InDesign): the AI chip opens the page's AI menu for the text.
+                    // Web (AI Вёрстка): the AI chip opens the page's AI menu for the text.
                     if (has_text || text_frame) && app.services.ai_assist.is_some() {
                         ai_chip(app, ui);
                         sep(ui);

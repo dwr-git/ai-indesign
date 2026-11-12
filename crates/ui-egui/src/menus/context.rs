@@ -143,7 +143,7 @@ pub(super) fn context_parse(entries: &[&str]) -> Vec<(String, Vec<Item>)> {
 /// A canvas context menu: the menu bar's rows (labels, shortcuts, check marks, greyed when they
 /// can't run), scrolling when taller than the window.
 pub fn context_menu(app: &mut DesignApp, ui: &mut egui::Ui, kind: ContextMenu) {
-    // Web (AI-InDesign): the page's AI menu for the text being edited or the selected text frame.
+    // Web (AI Вёрстка): the page's AI menu for the text being edited or the selected text frame.
     let text_target =
         kind == ContextMenu::Text || (kind == ContextMenu::Object && crate::panels::sel_info(app).is_some_and(|i| i.is_text && i.count == 1));
     if text_target && app.services.ai_assist.is_some() {

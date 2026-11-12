@@ -255,10 +255,10 @@ pub struct Prefs {
     /// Preferences › Units & Increments set with no document open: what new documents start
     /// with, as InDesign's application defaults. A document keeps its own once made.
     pub default_units: DefaultUnits,
-    /// The built-in preset new documents start from (AI-InDesign: "A4"); `None` keeps the factory
+    /// The built-in preset new documents start from (AI Вёрстка: "A4"); `None` keeps the factory
     /// page (Letter).
     pub default_page: Option<String>,
-    /// What new documents are called before their number (AI-InDesign: "Без названия"); `None`
+    /// What new documents are called before their number (AI Вёрстка: "Без названия"); `None`
     /// keeps "Untitled".
     pub untitled_name: Option<String>,
 }

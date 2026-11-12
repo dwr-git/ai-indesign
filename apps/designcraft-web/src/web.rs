@@ -47,13 +47,13 @@ pub fn start() {
         if let Err(e) = create_error_panel(&document) {
             log::error!("couldn't create graphics error panel: {e:?}");
             if let Some(el) = document.get_element_by_id(LOADING_ID) {
-                el.set_text_content(Some("AI-InDesign не запустился. Обновите страницу."));
+                el.set_text_content(Some("AI Вёрстка не запустился. Обновите страницу."));
             }
             return;
         }
         let graphics = GraphicsState::default();
         let Some(canvas) = document.get_element_by_id(CANVAS_ID).and_then(|e| e.dyn_into::<web_sys::HtmlCanvasElement>().ok()) else {
-            graphics_failed(&graphics, "AI-InDesign не запустился", "Обновите страницу.", &format!("Missing canvas {CANVAS_ID}."));
+            graphics_failed(&graphics, "AI Вёрстка не запустился", "Обновите страницу.", &format!("Missing canvas {CANVAS_ID}."));
             return;
         };
         let mut options = eframe::WebOptions::default();
@@ -81,7 +81,7 @@ pub fn start() {
                     let (requests, control) = std::sync::mpsc::channel();
                     bridge::connect(requests, inbox.clone(), cc.egui_ctx.clone());
                     let mut session = Session::new();
-                    // AI-InDesign: A4 pages measured in millimetres, as Russian publications are.
+                    // AI Вёрстка: A4 pages measured in millimetres, as Russian publications are.
                     session.prefs.default_page = Some("A4".into());
                     session.prefs.default_units.horizontal_units = designcraft_geom::Unit::Millimeters;
                     session.prefs.default_units.vertical_units = designcraft_geom::Unit::Millimeters;
@@ -121,7 +121,7 @@ pub fn start() {
             Err(e) => {
                 graphics_failed(
                     &graphics,
-                    "AI-InDesign не запустился",
+                    "AI Вёрстка не запустился",
                     "Обновите страницу. Нужен браузер с WebGPU или WebGL2: свежий Chrome, Edge, Firefox или Safari.",
                     &format!("{e:?}"),
                 );
@@ -424,7 +424,7 @@ fn services(inbox: Inbox, ctx: egui::Context) -> Services {
             } else if request.purpose == "place" {
                 rfd::AsyncFileDialog::new().add_filter("Graphics", IMAGE_EXTS)
             } else {
-                rfd::AsyncFileDialog::new().add_filter("AI-InDesign, IDML or InDesign", DOC_EXTS)
+                rfd::AsyncFileDialog::new().add_filter("AI Вёрстка, IDML or InDesign", DOC_EXTS)
             };
             wasm_bindgen_futures::spawn_local(async move {
                 let Some(file) = dialog.pick_file().await else {
@@ -438,7 +438,7 @@ fn services(inbox: Inbox, ctx: egui::Context) -> Services {
         write: Some(Box::new(|name: &str, bytes: &[u8]| download(name, bytes))),
         download: Some(Box::new(|name: &str, bytes: &[u8]| download(name, bytes))),
         inbox: Some(inbox),
-        // AI-InDesign: Save and Save As go to the user's publications on the server while the
+        // AI Вёрстка: Save and Save As go to the user's publications on the server while the
         // page listens; the house at the right of the application bar goes back to the site; the
         // AI chip and the context menu's AI Assistant… open the page's AI menu.
         save_to_page: Some(Box::new(bridge::save_to_page)),

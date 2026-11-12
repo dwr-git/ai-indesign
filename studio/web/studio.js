@@ -1,4 +1,4 @@
-/* AI-InDesign — помощник и файлы на сервере внутри программы вёрстки.
+/* AI Вёрстка — помощник и файлы на сервере внутри программы вёрстки.
  *
  * Панель в браузере разговаривает с моделью через api/assistant.php, а действия
  * выполняет в самом редакторе через window.aiindesign (apps/designcraft-web/src/web/bridge.rs):
@@ -584,7 +584,7 @@
   function showEmpty() {
     log.innerHTML = `<div class="st-empty">
       <h3>Чем помочь?</h3>
-      <p>Спросите, где найти функцию в AI-InDesign, или попросите сверстать, переписать или оформить страницы за вас.</p>
+      <p>Спросите, где найти функцию в AI Вёрстка, или попросите сверстать, переписать или оформить страницы за вас.</p>
       <button class="st-mini primary st-start-tpl">Быстрые задачи</button>
       <div class="st-chips">
         <button class="st-chip" data-act="1">Сверстай листовку А4: заголовок, текст в две колонки, место под фото. Тема: </button>
@@ -840,7 +840,7 @@
     try {
       r = await post(payload);
     } catch (e) {
-      console.warn('AI-InDesign: запрос к помощнику оборвался', e);
+      console.warn('AI Вёрстка: запрос к помощнику оборвался', e);
       if (!hasImages(payload)) throw new Error(await explainNoAnswer(took()));
       try { r = await post(withoutImages(payload)); } catch { throw new Error(await explainNoAnswer(took())); }
       tellImagesBlocked();
@@ -1362,13 +1362,13 @@
       try {
         const j = await (await fetch(CFG.files + '?action=fonts', { credentials: 'same-origin', cache: 'no-store' })).json();
         for (const f of (j && j.ok && j.fonts) || []) {
-          await add(f.name, CFG.files + '?action=font&name=' + encodeURIComponent(f.name)).catch((e) => console.warn('AI-InDesign: шрифт ' + f.name, e));
+          await add(f.name, CFG.files + '?action=font&name=' + encodeURIComponent(f.name)).catch((e) => console.warn('AI Вёрстка: шрифт ' + f.name, e));
         }
       } catch { /* нет входа или сервера — только двойники */ }
       try {
         const m = await (await fetch(CFG.fonts, { cache: 'no-cache' })).json();
         for (const f of (m && m.fonts) || []) {
-          await add(f.file, 'fonts/' + encodeURIComponent(f.file)).catch((e) => console.warn('AI-InDesign: шрифт ' + f.file, e));
+          await add(f.file, 'fonts/' + encodeURIComponent(f.file)).catch((e) => console.warn('AI Вёрстка: шрифт ' + f.file, e));
         }
       } catch { /* сборка без шрифтов */ }
       // Открытые документы перекомпонуются с новыми шрифтами.
@@ -1829,7 +1829,7 @@
           if (docs.length) { try { doc = await PC.call('document.inspect'); } catch { /* начальный экран */ } }
           const t = doc ? doc.title : (cur && cur.title);
           const dirty = doc ? doc.dirty : (cur && cur.dirty);
-          document.title = t ? `${t}${dirty ? ' •' : ''} — AI-InDesign` : 'AI-InDesign';
+          document.title = t ? `${t}${dirty ? ' •' : ''} — AI Вёрстка` : 'AI Вёрстка';
         } catch { /* не важно */ }
       }
       await sleep(2000);
@@ -1923,7 +1923,7 @@
     commands().catch(() => {});
     watchTheme();
     Gallery.start();
-    fonts.then((n) => { if (n) console.info('AI-InDesign: шрифтов загружено', n); });
+    fonts.then((n) => { if (n) console.info('AI Вёрстка: шрифтов загружено', n); });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
