@@ -1196,6 +1196,12 @@
     }
     async function load(name) {
       try {
+        // Уже открыта в редакторе — просто перейти на её вкладку.
+        try {
+          const ui = await PC.call('ui.inspect');
+          const i = (ui.documents || []).findIndex((d) => d.title === nativeName(name) && !d.preview);
+          if (i >= 0 && known.has(nativeName(name))) { await PC.exec('file.activate', { index: i }); server = nativeName(name); show(false); return; }
+        } catch { /* откроем заново */ }
         toast('Открываю «' + name + '»…');
         const r = await fetch(api('action=load&name=' + encodeURIComponent(name)), { credentials: 'same-origin', cache: 'no-store' });
         if (!r.ok) await json(r);
@@ -1374,7 +1380,9 @@
 
   // ------------------------------------------------------------------ быстрые задачи и новые публикации
   const needDoc = async () => {
-    try { await PC.call('document.inspect'); } catch { throw new Error('Сначала откройте или создайте публикацию.'); }
+    let n = 0;
+    try { const ui = await PC.call('ui.inspect'); n = Array.isArray(ui.documents) ? ui.documents.length : 0; } catch { /* ниже */ }
+    if (!n) throw new Error('Сначала откройте или создайте публикацию.');
   };
   // Быстрые задачи: те, что делаются командами, — сразу; остальные — через помощника (! — сделать, ? — объяснить).
   const page = async () => { await needDoc(); return currentPage(); };
@@ -1817,7 +1825,8 @@
           const docs = (ui && Array.isArray(ui.documents)) ? ui.documents : [];
           const cur = docs.length ? docs[docs.length - 1] : null;
           let doc = null;
-          try { doc = await PC.call('document.inspect'); } catch { /* начальный экран */ }
+          // Без открытых документов не спрашиваем: редактор написал бы ошибку в строке состояния.
+          if (docs.length) { try { doc = await PC.call('document.inspect'); } catch { /* начальный экран */ } }
           const t = doc ? doc.title : (cur && cur.title);
           const dirty = doc ? doc.dirty : (cur && cur.dirty);
           document.title = t ? `${t}${dirty ? ' •' : ''} — AI-InDesign` : 'AI-InDesign';
