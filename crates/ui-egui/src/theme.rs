@@ -54,6 +54,11 @@ pub struct Tokens {
     /// The Brand theme: black menus and windows with a strong shadow, the brand backdrop round
     /// the pages ([`paint_brand_backdrop`]).
     pub brand: bool,
+    /// AI-InDesign's Light and Dark: our neumorphic palettes (soft blue-grey chrome, rounded
+    /// controls, tinted soft shadows).
+    pub neu: bool,
+    /// Text and icons drawn on `accent_strong` (white, but dark on the Dark theme's light blue).
+    pub on_accent: Color32,
     pub app_bar: Color32,
     pub panel: Color32,
     pub panel_darker: Color32,
@@ -112,6 +117,8 @@ impl Tokens {
         let dark = Tokens {
             dark: true,
             brand: false,
+            neu: false,
+            on_accent: Color32::WHITE,
             app_bar: hex(0x262626),
             panel: hex(0x323232),
             panel_darker: hex(0x282828),
@@ -151,7 +158,43 @@ impl Tokens {
             caption_close_text: Color32::WHITE,
         };
         match b {
-            Brightness::Dark => dark,
+            // AI-InDesign's Dark: the NeuDark palette (chrome #262D3A, cards #282F3D, canvas #1B202A,
+            // fields #202632, text #E4EBF6 / #C4CFE0 / #A0ADC2, accent #5CA8FF with dark text on it).
+            Brightness::Dark => Tokens {
+                neu: true,
+                app_bar: hex(0x262d3a),
+                panel: hex(0x282f3d),
+                panel_darker: hex(0x222834),
+                input: hex(0x202632),
+                input_border: hex(0x3b4558),
+                divider: hex(0x1c222c),
+                text: hex(0xc4cfe0),
+                text_strong: hex(0xe4ebf6),
+                text_dim: hex(0xa0adc2),
+                text_disabled: hex(0x657189),
+                icon: hex(0xc4cfe0),
+                hover: hex(0x323a4a),
+                tool_active: hex(0x1e2430),
+                accent: hex(0x8ec6ff),
+                accent_strong: hex(0x5ca8ff),
+                on_accent: hex(0x0b1220),
+                row_selected: hex(0x2c4a6e),
+                pasteboard: hex(0x1b202a),
+                ruler: hex(0x222834),
+                ruler_tick: hex(0x8c98ae),
+                tab_inactive: hex(0x232a36),
+                button: hex(0x2d3544),
+                radius: 6,
+                border: hex(0x1c222c),
+                field_border: hex(0x465166),
+                well: hex(0x1e2430),
+                well_rim: hex(0x3a4456),
+                ruler_text: hex(0xc4cfe0),
+                section_divider: hex(0x232a36),
+                tab_strip: hex(0x232a36),
+                measure_bg: Color32::from_rgba_unmultiplied(0x2b, 0x33, 0x42, 235),
+                ..dark
+            },
             // The brand gradient's navy (#0a0a0f → #1a1a2e → #16213e) for the chrome, the brand's
             // blue-violet (#667eea) for the accent; pages stay white.
             Brightness::Brand => Tokens {
@@ -248,34 +291,41 @@ impl Tokens {
                 tab_strip: hex(0xa6a6a6),
                 ..dark
             },
+            // AI-InDesign's Light: the NeuLight palette (chrome #E4ECF6, cards #E6EEF8, canvas #D6E0ED,
+            // fields #DCE6F3, text #1E2C42 / #34445E / #4E5E78, accent #3480E2, accent text #1652A8).
             Brightness::Light => Tokens {
                 dark: false,
-                app_bar: hex(0xe4e4e4),
-                panel: hex(0xf0f0f0),
-                panel_darker: hex(0xe2e2e2),
-                input: hex(0xffffff),
-                input_border: hex(0xb4b4b4),
-                divider: hex(0xd0d0d0),
-                text: hex(0x1e1e1e),
-                text_strong: hex(0x000000),
-                text_dim: hex(0x555555),
-                text_disabled: hex(0x9a9a9a),
-                icon: hex(0x2c2c2c),
-                hover: hex(0xdddddd),
-                tool_active: hex(0xcfcfcf),
-                row_selected: hex(0xc4dbf7),
-                pasteboard: hex(0xd4d4d4),
-                ruler: hex(0xf2f2f2),
-                ruler_tick: hex(0x4a4a4a),
-                tab_inactive: hex(0xdcdcdc),
-                button: hex(0xf0f0f0),
-                border: hex(0xc4c4c4),
-                field_border: hex(0xa8a8a8),
-                well: hex(0xcfcfcf),
-                well_rim: hex(0xbdbdbd),
-                ruler_text: hex(0x1e1e1e),
-                section_divider: hex(0xd0d0d0),
-                tab_strip: hex(0xe2e2e2),
+                neu: true,
+                app_bar: hex(0xe4ecf6),
+                panel: hex(0xe6eef8),
+                panel_darker: hex(0xdce5f1),
+                input: hex(0xdce6f3),
+                input_border: hex(0xb3c2d6),
+                divider: hex(0xc9d5e5),
+                text: hex(0x34445e),
+                text_strong: hex(0x1e2c42),
+                text_dim: hex(0x4e5e78),
+                text_disabled: hex(0x8d9ab0),
+                icon: hex(0x34445e),
+                hover: hex(0xd5e0ee),
+                tool_active: hex(0xc8d6ea),
+                accent: hex(0x1652a8),
+                accent_strong: hex(0x3480e2),
+                row_selected: hex(0xc2d8f5),
+                pasteboard: hex(0xd6e0ed),
+                ruler: hex(0xe9f0f8),
+                ruler_tick: hex(0x4e5e78),
+                tab_inactive: hex(0xdae3ef),
+                button: hex(0xe6eef8),
+                radius: 6,
+                border: hex(0xc9d5e5),
+                field_border: hex(0xb3c2d6),
+                well: hex(0xccd9ea),
+                well_rim: hex(0xb7c7dc),
+                ruler_text: hex(0x34445e),
+                section_divider: hex(0xd2dce9),
+                tab_strip: hex(0xdde6f2),
+                measure_bg: Color32::from_rgba_unmultiplied(0x34, 0x44, 0x5e, 230),
                 ..dark
             },
             Brightness::HighContrast => Tokens {
@@ -626,6 +676,19 @@ pub fn apply(ctx: &egui::Context, t: &Tokens) {
     v.widgets.inactive.weak_bg_fill = Color32::TRANSPARENT;
     v.widgets.inactive.bg_fill = t.input;
     v.popup_shadow = egui::epaint::Shadow { offset: [0, 4], blur: 12, spread: 0, color: Color32::from_black_alpha(90) };
+    if t.neu {
+        // Neumorphic Light and Dark: rounded windows and menus, soft shadows tinted with the
+        // palette's blue instead of grey.
+        let shade = if t.dark { Color32::from_black_alpha(150) } else { Color32::from_rgba_unmultiplied(0x46, 0x5a, 0x82, 70) };
+        v.window_corner_radius = CornerRadius::same(10);
+        v.menu_corner_radius = CornerRadius::same(8);
+        v.popup_shadow = egui::epaint::Shadow { offset: [0, 6], blur: 18, spread: 0, color: shade };
+        v.window_shadow = egui::epaint::Shadow { offset: [0, 10], blur: 30, spread: 0, color: shade };
+        v.selection.bg_fill =
+            if t.dark { Color32::from_rgba_unmultiplied(0x5c, 0xa8, 0xff, 0x66) } else { Color32::from_rgba_unmultiplied(0x34, 0x80, 0xe2, 0x55) };
+        v.selection.stroke = Stroke::new(1.0, t.accent_strong);
+        v.hyperlink_color = t.accent;
+    }
     if t.brand {
         // Brand: menus, popups and windows are solid black blocks with a strong black shadow.
         v.window_fill = Color32::BLACK;

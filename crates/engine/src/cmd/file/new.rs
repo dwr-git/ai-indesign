@@ -40,7 +40,9 @@ fn new_document(nd: &NewDocument) -> Document {
 pub(super) fn file_new(s: &mut Session, p: &Value) -> Result<Value> {
     let mut nd = new_document_settings(s, p)?;
     s.untitled += 1;
-    nd.title = str_param(p, "title").map(str::to_string).unwrap_or_else(|| format!("Untitled-{}", s.untitled));
+    nd.title = str_param(p, "title")
+        .map(str::to_string)
+        .unwrap_or_else(|| format!("{}-{}", s.prefs.untitled_name.as_deref().unwrap_or("Untitled"), s.untitled));
     let mut d = new_document(&nd);
     s.prefs.default_units.apply(&mut d.settings, p.get("preset").is_some_and(|v| !v.is_null()));
     let i = s.add_document(DocState::new(d, None));

@@ -253,7 +253,7 @@ pub fn app_bar(app: &mut DesignApp, ui: &mut egui::Ui) {
                                     ui.painter(),
                                     egui::Rect::from_center_size(r.center(), vec2(home - 6.0, home - 6.0)),
                                     "home",
-                                    Color32::WHITE,
+                                    t.on_accent,
                                 );
                                 if resp.clicked()
                                     && let Some(go) = app.services.go_home.as_ref()

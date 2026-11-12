@@ -1920,6 +1920,7 @@ pub(super) const TABLE: &[(&str, &str)] = &[
     ),
     ("AI Assistant…", "ИИ-помощник…"),
     ("AI help for the selected text", "ИИ-помощь с выделенным текстом"),
+    ("AI", "ИИ"),
 ];
 
 /// Contexts whose Russian noun differs from the shared action/text-layout label.

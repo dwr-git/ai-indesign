@@ -258,6 +258,9 @@ pub struct Prefs {
     /// The built-in preset new documents start from (AI-InDesign: "A4"); `None` keeps the factory
     /// page (Letter).
     pub default_page: Option<String>,
+    /// What new documents are called before their number (AI-InDesign: "Без названия"); `None`
+    /// keeps "Untitled".
+    pub untitled_name: Option<String>,
 }
 
 /// Units & Increments for new documents (Preferences with no document open), in the keys
@@ -360,6 +363,7 @@ impl Default for Prefs {
             document_presets: Vec::new(),
             export_presets: Vec::new(),
             default_page: None,
+            untitled_name: None,
             show_hidden_characters: false,
             typographers_quotes: true,
             polygon_sides: 6,
@@ -460,7 +464,7 @@ impl Default for Session {
 impl Session {
     /// The name `file.new` gives the next document without a title (New Document shows it).
     pub fn next_untitled_title(&self) -> String {
-        format!("Untitled-{}", self.untitled.saturating_add(1))
+        format!("{}-{}", self.prefs.untitled_name.as_deref().unwrap_or("Untitled"), self.untitled.saturating_add(1))
     }
 
     pub fn new() -> Self {

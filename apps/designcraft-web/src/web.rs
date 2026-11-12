@@ -85,6 +85,7 @@ pub fn start() {
                     session.prefs.default_page = Some("A4".into());
                     session.prefs.default_units.horizontal_units = designcraft_geom::Unit::Millimeters;
                     session.prefs.default_units.vertical_units = designcraft_geom::Unit::Millimeters;
+                    session.prefs.untitled_name = Some("Без названия".into());
                     let mut app = DesignApp::new(session, services(inbox.clone(), cc.egui_ctx.clone())).with_control(control);
                     // The Russian interface and the Brand theme (the other themes stay in Window ›
                     // Interface Brightness and the panel's theme menu).
@@ -94,7 +95,7 @@ pub fn start() {
                         let _ = app.run("file.newSample", serde_json::json!({}));
                     } else {
                         // A blank A4 page to start on, as a new document opens in AI-Word.
-                        let _ = app.run("file.new", serde_json::json!({"title": "Без названия-1"}));
+                        let _ = app.run("file.new", serde_json::json!({}));
                     }
                     Ok(Box::new(WebShell { app, inbox, graphics: creator_graphics }))
                 }),

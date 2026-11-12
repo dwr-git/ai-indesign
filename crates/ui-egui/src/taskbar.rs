@@ -75,6 +75,11 @@ pub fn show(app: &mut DesignApp, ctx: &egui::Context, sel: Rect, canvas: Rect) {
                         ui.ctx().set_cursor_icon(egui::CursorIcon::Grab);
                     }
                     let text_frame = panels::sel_info(app).is_some_and(|i| i.is_text && i.count == 1);
+                    // Web (AI-InDesign): the AI chip opens the page's AI menu for the text.
+                    if (has_text || text_frame) && app.services.ai_assist.is_some() {
+                        ai_chip(app, ui);
+                        sep(ui);
+                    }
                     if has_text || text_frame {
                         text_controls(app, ui, has_text);
                     } else {
@@ -84,6 +89,41 @@ pub fn show(app: &mut DesignApp, ctx: &egui::Context, sel: Rect, canvas: Rect) {
                 });
             });
     });
+}
+
+/// The AI chip: a sparkle and "AI" on the accent; a click asks the page for its AI menu under the
+/// chip (`Services::ai_assist`).
+fn ai_chip(app: &mut DesignApp, ui: &mut Ui) {
+    let t = Tokens::get(ui.ctx());
+    let label = crate::i18n::tr(&app.ui.language, "AI");
+    let galley = crate::rtl::plain(ui.ctx(), label, crate::theme::semibold(11.5), t.on_accent);
+    let size = vec2(galley.size().x + 32.0, 24.0);
+    let (r, resp) = ui.allocate_exact_size(size, Sense::click());
+    let tip = crate::i18n::tr(&app.ui.language, "AI help for the selected text");
+    let resp = resp.on_hover_text(tip).on_hover_cursor(egui::CursorIcon::PointingHand);
+    resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, tip));
+    let fill = if resp.hovered() { t.accent } else { t.accent_strong };
+    ui.painter().rect_filled(r, 12.0, fill);
+    // A four-pointed sparkle drawn in code.
+    let c = pos2(r.min.x + 13.0, r.center().y);
+    let (o, i) = (6.0, 1.6);
+    let star = vec![
+        pos2(c.x, c.y - o),
+        pos2(c.x + i, c.y - i),
+        pos2(c.x + o, c.y),
+        pos2(c.x + i, c.y + i),
+        pos2(c.x, c.y + o),
+        pos2(c.x - i, c.y + i),
+        pos2(c.x - o, c.y),
+        pos2(c.x - i, c.y - i),
+    ];
+    ui.painter().add(egui::Shape::convex_polygon(star, t.on_accent, Stroke::NONE));
+    ui.painter().galley(pos2(r.min.x + 23.0, r.center().y - galley.size().y / 2.0), galley, t.on_accent);
+    if resp.clicked()
+        && let Some(ai) = app.services.ai_assist.as_ref()
+    {
+        ai(r.min.x, r.max.y + 6.0);
+    }
 }
 
 /// `at` moved as little as needed for a bar `w` wide to sit inside `canvas` (8 pt in).
