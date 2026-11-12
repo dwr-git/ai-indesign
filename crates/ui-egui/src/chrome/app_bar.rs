@@ -241,6 +241,27 @@ pub fn app_bar(app: &mut DesignApp, ui: &mut egui::Ui) {
                         let size = vec2(tools_slot_width(ui.available_width(), tools_w), ui.available_height());
                         let tools = ui.allocate_ui_with_layout(size, egui::Layout::right_to_left(egui::Align::Center), |ui| {
                             ui.add_space(4.0);
+                            // Web: the way back to the site the editor lives on, at the right end.
+                            if app.services.go_home.is_some() {
+                                let (r, resp) = ui.allocate_exact_size(vec2(home + 8.0, home), Sense::click());
+                                let tip = crate::i18n::tr(&app.ui.language, "To the site");
+                                let resp = resp.on_hover_text(tip).on_hover_cursor(egui::CursorIcon::PointingHand);
+                                resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, tip));
+                                let fill = if resp.hovered() { t.accent } else { t.accent_strong };
+                                ui.painter().rect_filled(r, 6.0, fill);
+                                icons::paint(
+                                    ui.painter(),
+                                    egui::Rect::from_center_size(r.center(), vec2(home - 6.0, home - 6.0)),
+                                    "home",
+                                    Color32::WHITE,
+                                );
+                                if resp.clicked()
+                                    && let Some(go) = app.services.go_home.as_ref()
+                                {
+                                    go();
+                                }
+                                ui.add_space(8.0);
+                            }
                             search_field(app, ui);
                             ui.add_space(8.0);
                             let current = app.ui.workspace.clone();
@@ -298,11 +319,6 @@ pub fn app_bar(app: &mut DesignApp, ui: &mut egui::Ui) {
                             if icons::button(ui, "share", 22.0, false, crate::i18n::tr(&app.ui.language, "Share")).clicked() {
                                 app.status(crate::i18n::tr(&app.ui.language, "Export a PDF, IDML or package to share — no cloud account needed."));
                             }
-                            ui.add_space(8.0);
-                            // Always one click away: the ArtCraft community Discord.
-                            if crate::about::discord_button(ui, "Discord", vec2(78.0, 22.0)) {
-                                let _ = app.run("help.discord", json!({}));
-                            }
                             tools_start = ui.min_rect().min.x;
                             ui.data_mut(|d| d.insert_temp(egui::Id::unique("app_bar_tools_start"), tools_start));
                             ui.min_rect().width()
@@ -316,8 +332,8 @@ pub fn app_bar(app: &mut DesignApp, ui: &mut egui::Ui) {
             });
             // Centred title.
             let title = match app.session.active() {
-                Some(d) => format!("DesignCraft — {}", crate::rtl::isolate(&d.title())),
-                None => "DesignCraft".to_string(),
+                Some(d) => format!("AI-InDesign — {}", crate::rtl::isolate(&d.title())),
+                None => "AI-InDesign".to_string(),
             };
             // Centred between the menus and the right-hand controls; left out when it won't fit.
             let galley = crate::rtl::plain(ui.ctx(), &title, egui::FontId::proportional(11.5), t.text);

@@ -2,9 +2,26 @@ use super::{DesignApp, Value, json};
 use crate::app::file_dialogs::{Bound, with_path};
 
 pub(super) fn download_document(app: &mut DesignApp) -> Result<Value, String> {
+    download_document_as(app, false)
+}
+
+/// Save the active document in the browser: to the page when it keeps saves (AI-InDesign's
+/// publications on the server; `save_as` says Save As was chosen), else as a download.
+pub(super) fn download_document_as(app: &mut DesignApp, save_as: bool) -> Result<Value, String> {
     let name = app.session.active().map(|d| format!("{}.designcraft", d.doc.title)).ok_or("no document")?;
     let ser = app.run("file.serialize", json!({}))?;
     let bytes = designcraft_engine::cmd::base64_decode(ser["base64"].as_str().unwrap_or_default());
+    if let Some(to_page) = app.services.save_to_page.as_ref() {
+        let path = app.session.active().and_then(|d| d.path.clone());
+        match to_page(&name, path.as_deref(), &bytes, save_as) {
+            Ok(true) => {
+                app.run("file.saveAs", json!({"path": name}))?;
+                return Ok(json!({"savedToPage": name, "bytes": bytes.len()}));
+            }
+            Ok(false) => {}
+            Err(e) => return Err(format!("could not save {name}: {e}")),
+        }
+    }
     let download = app.services.download.as_mut().ok_or("no download service")?;
     download(&name, &bytes).map_err(|e| format!("could not download {name}: {e}"))?;
     // Marks the document saved; on the web the engine doesn't touch a file system.

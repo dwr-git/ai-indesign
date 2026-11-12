@@ -156,7 +156,8 @@ fn run_ui_part1(app: &mut DesignApp, id: &str, p: &Value) -> Option<Result<Value
             ));
             Ok(Value::Null)
         }
-        "app.save" | "app.saveDialog" if app.services.download.is_some() => download_document(app),
+        "app.save" if app.services.download.is_some() => download_document(app),
+        "app.saveDialog" if app.services.download.is_some() => super::export::download_document_as(app, true),
         "app.save" => {
             if app.session.active().is_some_and(|d| d.path.is_some()) {
                 return Some(app.run("file.save", json!({})));

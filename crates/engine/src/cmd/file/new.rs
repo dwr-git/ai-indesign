@@ -51,7 +51,8 @@ impl Session {
     /// What New Document starts with: the factory settings, in the default units (Preferences
     /// with no document open).
     pub fn default_new_document(&self) -> NewDocument {
-        NewDocument { units: self.prefs.default_units.horizontal_units, ..NewDocument::default() }
+        let base = self.prefs.default_page.as_deref().and_then(NewDocument::from_preset).unwrap_or_default();
+        NewDocument { units: self.prefs.default_units.horizontal_units, ..base }
     }
 
     /// New Document's Preview: a document made as `file.new` would make it with `p`, shown while

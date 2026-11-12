@@ -591,7 +591,7 @@ fn shared_command(app: &mut DesignApp, id: &str, params: &Value) -> Result<Value
         DockCommand::NewWorkspace { name } => return app.run("window.newWorkspace", json!({"name": name})),
         DockCommand::DeleteWorkspace { name } => return app.run("window.deleteWorkspace", json!({"name": name})),
         DockCommand::ResetWorkspace {} => return app.run("window.resetWorkspace", json!({})),
-        DockCommand::Lock { .. } => return Err("Lock Workspace is not available in DesignCraft".into()),
+        DockCommand::Lock { .. } => return Err("Lock Workspace is not available in AI-InDesign".into()),
         DockCommand::Window { .. } => {
             return Err(
                 "Move Panel to New Window is not available: a floating panel has its own window on the desktop and stays in the page on the web"
@@ -1274,7 +1274,7 @@ impl craft_ui::docking::DockContent<String> for PanelContent<'_> {
     fn body(&mut self, ui: &mut egui::Ui, id: &String) {
         if id == CANVAS {
             let fill = crate::theme::Tokens::get(ui.ctx()).pasteboard;
-            ui.painter().rect_filled(ui.max_rect(), 0.0, fill);
+            crate::theme::paint_canvas_fill(ui.painter(), ui.max_rect(), fill);
             self.app.canvas_area(ui, false);
             return;
         }

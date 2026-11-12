@@ -21,7 +21,7 @@ pub(super) const TABLE: &[(&str, &str)] = &[
     ("Open…", "Открыть…"),
     ("Close", "Закрыть"),
     ("Dismiss", "Скрыть"),
-    ("Quit DesignCraft", "Выйти из DesignCraft"),
+    ("Quit AI-InDesign", "Выйти из AI-InDesign"),
     ("Save", "Сохранить"),
     ("Save As…", "Сохранить как…"),
     ("Save a Copy…", "Сохранить копию…"),
@@ -544,7 +544,7 @@ pub(super) const TABLE: &[(&str, &str)] = &[
     ("Show / hide text with this condition", "Показать / скрыть текст с этим условием"),
     ("Spreads of up to 10 pages", "Развороты до 10 страниц"),
     ("for", "для"),
-    ("About DesignCraft", "О программе DesignCraft"),
+    ("About AI-InDesign", "О программе AI-InDesign"),
     ("Accept All Changes", "Принять все изменения"),
     ("Activate Document", "Активировать документ"),
     ("Add Anchor Point", "Добавить опорную точку"),
@@ -1099,7 +1099,7 @@ pub(super) const TABLE: &[(&str, &str)] = &[
     ("User Dictionary (this document)", "Пользовательский словарь (этот документ)"),
     ("Utilities", "Служебные инструменты"),
     ("Variable Font", "Вариативный шрифт"),
-    ("Welcome to DesignCraft", "Добро пожаловать в DesignCraft"),
+    ("Welcome to AI-InDesign", "Добро пожаловать в AI-InDesign"),
     ("When Scaling", "При масштабировании"),
     ("[Basic] (working) ▾", "[Основной] (рабочий) ▾"),
     ("[Black] Overprint", "Наложение [Черного]"),
@@ -1907,6 +1907,19 @@ pub(super) const TABLE: &[(&str, &str)] = &[
     ("Vertical:", "По вертикали:"),
     ("Working CMYK", "Рабочий CMYK"),
     ("Yellow", "Желтый"),
+    // AI-InDesign.
+    ("Brand", "Фирменная"),
+    ("To the site", "На сайт"),
+    (
+        "Based on DesignCraft by the ArtCraft team (github.com/storytold/designcraft).",
+        "Основан на DesignCraft от команды ArtCraft (github.com/storytold/designcraft).",
+    ),
+    (
+        "MIT OR Apache-2.0. Copyright (c) 2026 ArtCraft Team, the DesignCraft and AI-InDesign contributors.",
+        "MIT OR Apache-2.0. © 2026 ArtCraft Team, участники DesignCraft и AI-InDesign.",
+    ),
+    ("AI Assistant…", "ИИ-помощник…"),
+    ("AI help for the selected text", "ИИ-помощь с выделенным текстом"),
 ];
 
 /// Contexts whose Russian noun differs from the shared action/text-layout label.

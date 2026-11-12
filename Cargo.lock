@@ -1649,7 +1649,9 @@ name = "designcraft-web"
 version = "0.20.1"
 dependencies = [
  "designcraft-engine",
+ "designcraft-fonts",
  "designcraft-format",
+ "designcraft-geom",
  "designcraft-ui-egui",
  "eframe",
  "egui",
@@ -1658,6 +1660,17 @@ dependencies = [
  "log",
  "rfd",
  "serde_json",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-sys",
+]
+
+[[package]]
+name = "designcraft-web-boot"
+version = "0.20.1"
+dependencies = [
+ "flate2",
+ "js-sys",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",

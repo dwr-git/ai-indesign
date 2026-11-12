@@ -19,6 +19,14 @@ pub type WindowFrameFn = Box<dyn FnMut()>;
 /// the window's `inner_rect`. `None` when the system doesn't say.
 pub type PointerFn = Box<dyn Fn() -> Option<egui::Pos2>>;
 
+/// Web (AI-InDesign): hand a Save or Save As to the page, which keeps the file in the user's
+/// publications on the server, instead of downloading it: (file name, the document's path, the
+/// bytes, Save As). `Ok(true)` when the page took it; `Ok(false)` downloads as usual.
+pub type SaveToPageFn = Box<dyn Fn(&str, Option<&str>, &[u8], bool) -> Result<bool, String>>;
+
+/// Web (AI-InDesign): open the page's AI menu at this point of the window (egui points).
+pub type AiAssistFn = Box<dyn Fn(f32, f32)>;
+
 /// Files delivered asynchronously with their original operation and document identity.
 pub type Inbox = std::sync::Arc<std::sync::Mutex<Vec<ImportedFile>>>;
 
@@ -49,4 +57,12 @@ pub struct Services {
     /// macOS), so without it a drop can't tell which frame it landed on. `None`: a drop without
     /// pointer events lands in the middle of the view.
     pub pointer: Option<PointerFn>,
+    /// Web (AI-InDesign): Save and Save As go to the page (see [`SaveToPageFn`]).
+    pub save_to_page: Option<SaveToPageFn>,
+    /// Web (AI-InDesign): leave the editor for the site it lives on (`STUDIO_CONFIG.homeUrl`). The
+    /// application bar shows a house at its right end when set.
+    pub go_home: Option<Box<dyn Fn()>>,
+    /// Web (AI-InDesign): the AI chip by a text selection and the text context menu's "AI
+    /// Assistant…" open the page's AI menu here (see [`AiAssistFn`]).
+    pub ai_assist: Option<AiAssistFn>,
 }

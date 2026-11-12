@@ -1,11 +1,12 @@
+AI-InDesign (based on DesignCraft)
 DesignCraft
 Copyright (c) 2026 ArtCraft Team and the DesignCraft contributors.
 Licensed under the MIT License or the Apache License, Version 2.0, at your option
 (LICENSE-MIT, LICENSE-APACHE).
 
-The ArtCraft name, wordmark and logos in docs/brand/ are trademarks of the ArtCraft Team. They are
-not open source and are not covered by the license above; their terms are in
-docs/brand/LICENSE-brand.txt.
+AI-InDesign is a modified version of DesignCraft by the ArtCraft team
+(https://github.com/storytold/designcraft), under the same license. It is not an ArtCraft product and
+carries none of the ArtCraft marks.
 
 Third-party material
 
@@ -235,3 +236,9 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+AI-InDesign packages (built by .github/workflows/studio.yml) also contain:
+
+- Liberation Serif, Sans and Mono (fonts/) — SIL Open Font License 1.1; fonts/LICENSE-Liberation.txt.
+- Carlito (fonts/) — SIL Open Font License 1.1; fonts/LICENSE-Carlito.txt.
+- Caladea (fonts/) — Apache License 2.0; fonts/LICENSE-Caladea.txt.

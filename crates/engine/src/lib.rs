@@ -255,6 +255,9 @@ pub struct Prefs {
     /// Preferences › Units & Increments set with no document open: what new documents start
     /// with, as InDesign's application defaults. A document keeps its own once made.
     pub default_units: DefaultUnits,
+    /// The built-in preset new documents start from (AI-InDesign: "A4"); `None` keeps the factory
+    /// page (Letter).
+    pub default_page: Option<String>,
 }
 
 /// Units & Increments for new documents (Preferences with no document open), in the keys
@@ -356,6 +359,7 @@ impl Default for Prefs {
         Prefs {
             document_presets: Vec::new(),
             export_presets: Vec::new(),
+            default_page: None,
             show_hidden_characters: false,
             typographers_quotes: true,
             polygon_sides: 6,

@@ -251,7 +251,7 @@ pub fn show(app: &mut DesignApp, ui: &mut egui::Ui) {
     // differ in how much of the page shows, which `shown_area` gives.
     let preview = app.ui.screen_mode != ScreenMode::Normal;
     let bg = if app.ui.screen_mode == ScreenMode::Presentation { Color32::BLACK } else { t.pasteboard };
-    painter.rect_filled(screen, 0.0, bg);
+    crate::theme::paint_canvas_fill(&painter, screen, bg);
     // Page shadow: a hard 1.5 pt black offset on the right and bottom (InDesign 2026).
     for slot in &layout.slots {
         let r = xf.rect(slot.bounds);

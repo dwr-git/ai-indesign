@@ -415,7 +415,9 @@ fn handle_request(app: &mut DesignApp, ctx: &egui::Context, req: &ControlRequest
                 ctx.send_viewport_cmd(egui::ViewportCommand::Focus);
             }
             ctx.request_repaint();
-            Outcome::Screenshot { path: s("path").map(str::to_string) }
+            // `inline: true` (the web page's bridge): the PNG comes back in the reply as base64.
+            let inline = p.get("inline").and_then(Value::as_bool) == Some(true);
+            Outcome::Screenshot { path: if inline { Some(INLINE_PNG.to_string()) } else { s("path").map(str::to_string) } }
         }
         "ui.render" => {
             let Some(st) = app.session.active() else { return err("no document") };
@@ -461,6 +463,10 @@ fn handle_request(app: &mut DesignApp, ctx: &egui::Context, req: &ControlRequest
     }
 }
 
+/// The screenshot "path" that asks for the PNG in the reply (`ui.screenshot {inline: true}`); no
+/// file name can be it.
+pub const INLINE_PNG: &str = "\u{0}inline-png";
+
 pub fn save_screenshot(app: &mut DesignApp, image: &egui::ColorImage, path: Option<&str>) -> Value {
     let [w, h] = image.size;
     let Some(path) = path else {
@@ -469,6 +475,9 @@ pub fn save_screenshot(app: &mut DesignApp, image: &egui::ColorImage, path: Opti
     let rgba: Vec<u8> = image.pixels.iter().flat_map(|c| c.to_array()).collect();
     let img = designcraft_render::Rendered { width: w as u32, height: h as u32, pixels: rgba };
     let png = img.to_png();
+    if path == INLINE_PNG {
+        return json!({"ok": true, "result": {"width": w, "height": h, "png": designcraft_engine::cmd::base64_encode(&png)}});
+    }
     match app.services.write.as_mut() {
         Some(wr) => match wr(path, &png) {
             Ok(()) => json!({"ok": true, "result": {"path": path, "width": w, "height": h}}),

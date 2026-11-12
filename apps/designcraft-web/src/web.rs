@@ -28,11 +28,17 @@ const IMAGE_EXTS: &[&str] = &[
     "idml",
     "designcraft",
 ];
+mod bridge;
+
 const CANVAS_ID: &str = "designcraft_canvas";
 const LOADING_ID: &str = "designcraft_loading";
 
 pub fn start() {
     eframe::WebLogger::init(log::LevelFilter::Info).ok();
+    // The page's assistant panel and server files (`window.aiindesign`).
+    if let Err(e) = bridge::install() {
+        log::error!("couldn't install window.aiindesign: {e:?}");
+    }
     wasm_bindgen_futures::spawn_local(async {
         let Some(document) = web_sys::window().and_then(|w| w.document()) else {
             log::error!("no document");
@@ -41,13 +47,13 @@ pub fn start() {
         if let Err(e) = create_error_panel(&document) {
             log::error!("couldn't create graphics error panel: {e:?}");
             if let Some(el) = document.get_element_by_id(LOADING_ID) {
-                el.set_text_content(Some("DesignCraft couldn't start. Reload this page to try again."));
+                el.set_text_content(Some("AI-InDesign не запустился. Обновите страницу."));
             }
             return;
         }
         let graphics = GraphicsState::default();
         let Some(canvas) = document.get_element_by_id(CANVAS_ID).and_then(|e| e.dyn_into::<web_sys::HtmlCanvasElement>().ok()) else {
-            graphics_failed(&graphics, "DesignCraft failed to start", "Reload this page to try again.", &format!("Missing canvas {CANVAS_ID}."));
+            graphics_failed(&graphics, "AI-InDesign не запустился", "Обновите страницу.", &format!("Missing canvas {CANVAS_ID}."));
             return;
         };
         let mut options = eframe::WebOptions::default();
@@ -72,9 +78,23 @@ pub fn start() {
                         });
                     }
                     let inbox: Inbox = Inbox::default();
-                    let mut app = DesignApp::new(Session::new(), services(inbox.clone(), cc.egui_ctx.clone()));
+                    let (requests, control) = std::sync::mpsc::channel();
+                    bridge::connect(requests, inbox.clone(), cc.egui_ctx.clone());
+                    let mut session = Session::new();
+                    // AI-InDesign: A4 pages measured in millimetres, as Russian publications are.
+                    session.prefs.default_page = Some("A4".into());
+                    session.prefs.default_units.horizontal_units = designcraft_geom::Unit::Millimeters;
+                    session.prefs.default_units.vertical_units = designcraft_geom::Unit::Millimeters;
+                    let mut app = DesignApp::new(session, services(inbox.clone(), cc.egui_ctx.clone())).with_control(control);
+                    // The Russian interface and the Brand theme (the other themes stay in Window ›
+                    // Interface Brightness and the panel's theme menu).
+                    let _ = app.run("app.language", serde_json::json!({"lang": "ru"}));
+                    app.ui.brightness = designcraft_ui_egui::theme::Brightness::Brand;
                     if has_query_flag(&query(), "sample") {
                         let _ = app.run("file.newSample", serde_json::json!({}));
+                    } else {
+                        // A blank A4 page to start on, as a new document opens in AI-Word.
+                        let _ = app.run("file.new", serde_json::json!({"title": "Без названия-1"}));
                     }
                     Ok(Box::new(WebShell { app, inbox, graphics: creator_graphics }))
                 }),
@@ -100,8 +120,8 @@ pub fn start() {
             Err(e) => {
                 graphics_failed(
                     &graphics,
-                    "DesignCraft failed to start",
-                    "Reload this page to try again. A browser with WebGPU or WebGL2 is required.",
+                    "AI-InDesign не запустился",
+                    "Обновите страницу. Нужен браузер с WebGPU или WebGL2: свежий Chrome, Edge, Firefox или Safari.",
                     &format!("{e:?}"),
                 );
                 if let Some(shell) = runner.app_mut::<WebShell>()
@@ -122,8 +142,8 @@ const ERROR_ACTIONS_ID: &str = "designcraft_graphics_actions";
 const ERROR_STATUS_ID: &str = "designcraft_graphics_status";
 const ERROR_DOCUMENTS_ID: &str = "designcraft_graphics_documents";
 const GRAPHICS_LOST_EVENT: &str = "designcraftgraphicslost";
-const GRAPHICS_TITLE: &str = "Graphics connection lost";
-const GRAPHICS_MESSAGE: &str = "Editing has stopped. Save a copy of each open document, then reload this page and reopen the copies. Reloading discards changes you have not downloaded.";
+const GRAPHICS_TITLE: &str = "Связь с видеокартой потеряна";
+const GRAPHICS_MESSAGE: &str = "Редактирование остановлено. Сохраните копию каждого открытого документа, затем обновите страницу и откройте копии. При обновлении несохраненные изменения пропадут.";
 
 fn create_error_panel(document: &web_sys::Document) -> Result<(), wasm_bindgen::JsValue> {
     let panel: web_sys::HtmlElement = document.create_element("div")?.dyn_into()?;
@@ -238,7 +258,7 @@ fn recovery_button(document: &web_sys::Document) -> Result<web_sys::HtmlElement,
 
 fn add_reload_control(document: &web_sys::Document, actions: &web_sys::HtmlElement) -> Result<(), wasm_bindgen::JsValue> {
     let reload = recovery_button(document)?;
-    reload.set_text_content(Some("Reload"));
+    reload.set_text_content(Some("Обновить страницу"));
     add_dom_event_listener(&reload, "click", move |event| {
         event.stop_propagation();
         if let Some(window) = web_sys::window()
@@ -300,7 +320,7 @@ fn prepare_document_recovery(runner: &eframe::WebRunner, session: &Session) -> R
 fn recovery_controls_failed(error: &wasm_bindgen::JsValue) {
     log::error!("couldn't prepare recovery downloads: {error:?}");
     if let Some(status) = web_sys::window().and_then(|w| w.document()).and_then(|doc| doc.get_element_by_id(ERROR_STATUS_ID)) {
-        status.set_text_content(Some("Couldn't prepare document downloads. Keep this page open to preserve unsaved documents."));
+        status.set_text_content(Some("Не удалось подготовить копии документов. Не закрывайте страницу, чтобы не потерять изменения."));
     }
 }
 
@@ -315,12 +335,12 @@ fn add_document_recovery_controls(snapshots: Vec<RecoveryDocument>) -> Result<bo
     documents.style().set_css_text("display:flex;flex-direction:column;gap:8px;max-width:100%;");
     for snapshot in snapshots {
         let button = recovery_button(&document)?;
-        button.set_text_content(Some(&format!("Save a Copy: {}", snapshot.title())));
+        button.set_text_content(Some(&format!("Сохранить копию: {}", snapshot.title())));
         add_dom_event_listener(&button, "click", move |event| {
             event.stop_propagation();
             let result = snapshot.save_copy().and_then(|(name, bytes)| {
                 download(&name, &bytes)?;
-                Ok(format!("Requested download of {name}. Check your browser downloads before reloading."))
+                Ok(format!("Скачивание {name} запрошено. Проверьте загрузки браузера перед обновлением страницы."))
             });
             let text = result.unwrap_or_else(|e| e);
             if let Some(status) = web_sys::window().and_then(|w| w.document()).and_then(|doc| doc.get_element_by_id(ERROR_STATUS_ID)) {
@@ -351,6 +371,10 @@ impl eframe::App for WebShell {
     fn logic(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         let graphics = self.graphics.clone();
         let _ = graphics.run_if_healthy(|| self.app.logic(ctx));
+        bridge::poll_replies();
+        if let Some(d) = self.app.session.active().map(|d| d.is_dirty()) {
+            bridge::dirty(d);
+        }
     }
 
     fn raw_input_hook(&mut self, ctx: &egui::Context, raw: &mut egui::RawInput) {
@@ -399,7 +423,7 @@ fn services(inbox: Inbox, ctx: egui::Context) -> Services {
             } else if request.purpose == "place" {
                 rfd::AsyncFileDialog::new().add_filter("Graphics", IMAGE_EXTS)
             } else {
-                rfd::AsyncFileDialog::new().add_filter("DesignCraft, IDML or InDesign", DOC_EXTS)
+                rfd::AsyncFileDialog::new().add_filter("AI-InDesign, IDML or InDesign", DOC_EXTS)
             };
             wasm_bindgen_futures::spawn_local(async move {
                 let Some(file) = dialog.pick_file().await else {
@@ -413,6 +437,12 @@ fn services(inbox: Inbox, ctx: egui::Context) -> Services {
         write: Some(Box::new(|name: &str, bytes: &[u8]| download(name, bytes))),
         download: Some(Box::new(|name: &str, bytes: &[u8]| download(name, bytes))),
         inbox: Some(inbox),
+        // AI-InDesign: Save and Save As go to the user's publications on the server while the
+        // page listens; the house at the right of the application bar goes back to the site; the
+        // AI chip and the context menu's AI Assistant… open the page's AI menu.
+        save_to_page: Some(Box::new(bridge::save_to_page)),
+        go_home: Some(Box::new(go_home)),
+        ai_assist: Some(Box::new(bridge::ai_menu)),
         ..Default::default()
     }
 }
@@ -420,7 +450,7 @@ fn services(inbox: Inbox, ctx: egui::Context) -> Services {
 /// Trigger a browser download of `bytes` named after the last component of `path`.
 fn download(path: &str, bytes: &[u8]) -> Result<(), String> {
     let js = |e: wasm_bindgen::JsValue| format!("{e:?}");
-    let name = std::path::Path::new(path).file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_else(|| "designcraft".into());
+    let name = std::path::Path::new(path).file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_else(|| "publication".into());
     let window = web_sys::window().ok_or("no window")?;
     let document = window.document().ok_or("no document")?;
     let parts = js_sys::Array::of1(&js_sys::Uint8Array::from(bytes));
@@ -445,4 +475,20 @@ fn download(path: &str, bytes: &[u8]) -> Result<(), String> {
         log::warn!("could not schedule revoking the download URL: {}", js(e));
     }
     Ok(())
+}
+
+/// Leave the editor for the site it lives on: `window.STUDIO_CONFIG.homeUrl` (studio/config.js,
+/// made absolute by the panel), one level up without it.
+fn go_home() {
+    let Some(window) = web_sys::window() else { return };
+    let url = js_sys::Reflect::get(&window, &"STUDIO_CONFIG".into())
+        .ok()
+        .filter(|c| c.is_object())
+        .and_then(|c| js_sys::Reflect::get(&c, &"homeUrl".into()).ok())
+        .and_then(|u| u.as_string())
+        .filter(|u| !u.trim().is_empty())
+        .unwrap_or_else(|| "../".to_string());
+    if let Err(e) = window.location().set_href(&url) {
+        log::error!("couldn't go to {url}: {e:?}");
+    }
 }

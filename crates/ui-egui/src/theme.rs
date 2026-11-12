@@ -14,10 +14,14 @@ pub enum Brightness {
     Light,
     /// Accessibility: black chrome, white text, yellow selection and focus.
     HighContrast,
+    /// AI-InDesign's Brand theme: navy chrome, the brand's blue-violet accent, solid black menus
+    /// and windows with a strong shadow, and the brand backdrop round the pages (which stay white).
+    Brand,
 }
 
 impl Brightness {
-    pub const ALL: [Brightness; 5] = [Brightness::Dark, Brightness::MediumDark, Brightness::MediumLight, Brightness::Light, Brightness::HighContrast];
+    pub const ALL: [Brightness; 6] =
+        [Brightness::Brand, Brightness::Dark, Brightness::MediumDark, Brightness::MediumLight, Brightness::Light, Brightness::HighContrast];
     pub fn label(self) -> &'static str {
         match self {
             Brightness::Dark => "Dark",
@@ -25,6 +29,7 @@ impl Brightness {
             Brightness::MediumLight => "Medium Light",
             Brightness::Light => "Light",
             Brightness::HighContrast => "High Contrast",
+            Brightness::Brand => "Brand",
         }
     }
     pub fn id(self) -> &'static str {
@@ -34,6 +39,7 @@ impl Brightness {
             Brightness::MediumLight => "mediumLight",
             Brightness::Light => "light",
             Brightness::HighContrast => "highContrast",
+            Brightness::Brand => "brand",
         }
     }
     pub fn parse(s: &str) -> Option<Self> {
@@ -45,6 +51,9 @@ impl Brightness {
 #[derive(Clone, Copy, Debug)]
 pub struct Tokens {
     pub dark: bool,
+    /// The Brand theme: black menus and windows with a strong shadow, the brand backdrop round
+    /// the pages ([`paint_brand_backdrop`]).
+    pub brand: bool,
     pub app_bar: Color32,
     pub panel: Color32,
     pub panel_darker: Color32,
@@ -102,6 +111,7 @@ impl Tokens {
     pub fn for_brightness(b: Brightness) -> Self {
         let dark = Tokens {
             dark: true,
+            brand: false,
             app_bar: hex(0x262626),
             panel: hex(0x323232),
             panel_darker: hex(0x282828),
@@ -142,6 +152,42 @@ impl Tokens {
         };
         match b {
             Brightness::Dark => dark,
+            // The brand gradient's navy (#0a0a0f → #1a1a2e → #16213e) for the chrome, the brand's
+            // blue-violet (#667eea) for the accent; pages stay white.
+            Brightness::Brand => Tokens {
+                brand: true,
+                app_bar: hex(0x0c0d17),
+                panel: hex(0x16182a),
+                panel_darker: hex(0x111222),
+                input: hex(0x1f2238),
+                input_border: hex(0x4a4f75),
+                divider: hex(0x2a2d46),
+                text: hex(0xeef0ff),
+                text_strong: hex(0xffffff),
+                text_dim: hex(0xb7bbd8),
+                text_disabled: hex(0x6b6f8f),
+                icon: hex(0xf3f4ff),
+                hover: hex(0x22253e),
+                tool_active: hex(0x2d3152),
+                accent: hex(0x8a9bff),
+                accent_strong: hex(0x667eea),
+                row_selected: hex(0x2a3066),
+                pasteboard: BRAND_CANVAS,
+                ruler: hex(0x12131f),
+                ruler_tick: hex(0xb7bbd8),
+                tab_inactive: hex(0x0c0d17),
+                button: hex(0x1f2238),
+                radius: 4,
+                border: hex(0x2a2d46),
+                field_border: hex(0x4a4f75),
+                well: hex(0x2a3066),
+                well_rim: hex(0x3a3e5e),
+                ruler_text: hex(0xd8dbf0),
+                section_divider: hex(0x2a2d46),
+                tab_strip: hex(0x0c0d17),
+                measure_bg: Color32::from_rgba_unmultiplied(0x1b, 0x1e, 0x3a, 235),
+                ..dark
+            },
             // Measured from InDesign 2026 (plan/indesign/11-observed-ui.md §1).
             Brightness::MediumDark => Tokens {
                 app_bar: hex(0x535353),
@@ -580,6 +626,17 @@ pub fn apply(ctx: &egui::Context, t: &Tokens) {
     v.widgets.inactive.weak_bg_fill = Color32::TRANSPARENT;
     v.widgets.inactive.bg_fill = t.input;
     v.popup_shadow = egui::epaint::Shadow { offset: [0, 4], blur: 12, spread: 0, color: Color32::from_black_alpha(90) };
+    if t.brand {
+        // Brand: menus, popups and windows are solid black blocks with a strong black shadow.
+        v.window_fill = Color32::BLACK;
+        v.window_stroke = Stroke::new(1.0, hex(0x26283c));
+        v.window_corner_radius = CornerRadius::same(8);
+        v.menu_corner_radius = CornerRadius::same(6);
+        v.popup_shadow = egui::epaint::Shadow { offset: [0, 8], blur: 32, spread: 0, color: Color32::BLACK };
+        v.window_shadow = egui::epaint::Shadow { offset: [0, 10], blur: 36, spread: 2, color: Color32::BLACK };
+        v.selection.bg_fill = Color32::from_rgba_unmultiplied(0x66, 0x7e, 0xea, 0x88);
+        v.hyperlink_color = hex(0xa9b4ff);
+    }
     ctx.set_visuals(v);
     ctx.global_style_mut(|s| {
         s.text_styles = text_styles.clone();
@@ -589,6 +646,113 @@ pub fn apply(ctx: &egui::Context, t: &Tokens) {
         s.spacing.menu_margin = egui::Margin::same(4);
         s.animation_time = 0.06;
     });
+}
+
+/// The colour the Brand backdrop reads as, the document area's colour in the Brand theme.
+pub const BRAND_CANVAS: Color32 = Color32::from_rgb(0x16, 0x18, 0x2C);
+
+/// The Brand theme's canvas backdrop, as the owner's page draws it in CSS: the brand gradient
+/// (#0a0a0f → #1a1a2e → #16213e at 135°), three soft glows (circles at 20% 80%, 80% 20% and 40% 40%,
+/// fading out halfway to the farthest corner), a 30 px grid of 5% white lines, and an inner shadow
+/// (`inset 0 0 35px 10px #00000099`) round the edges.
+pub fn paint_brand_backdrop(painter: &egui::Painter, rect: egui::Rect) {
+    use egui::epaint::{Mesh, Vertex, WHITE_UV};
+    let vertex = |pos: egui::Pos2, color: Color32| Vertex { pos, uv: WHITE_UV, color };
+    let quad = |m: &mut Mesh, corners: [(egui::Pos2, Color32); 4]| {
+        let base = m.vertices.len() as u32;
+        m.vertices.extend(corners.iter().map(|(p, c)| vertex(*p, *c)));
+        m.indices.extend([base, base + 1, base + 2, base, base + 2, base + 3]);
+    };
+    // The gradient: at 135° the top-left corner is the first stop, the bottom-right the last, and
+    // the other two corners sit on the middle stop.
+    let (a, mid, b) = (Color32::from_rgb(0x0A, 0x0A, 0x0F), Color32::from_rgb(0x1A, 0x1A, 0x2E), Color32::from_rgb(0x16, 0x21, 0x3E));
+    let mut m = Mesh::default();
+    quad(&mut m, [(rect.left_top(), a), (rect.right_top(), mid), (rect.right_bottom(), b), (rect.left_bottom(), mid)]);
+    painter.add(egui::Shape::mesh(m));
+    // The glows: a fan from the centre colour out to transparent at half the farthest-corner distance.
+    for (fx, fy, rgb, alpha) in [(0.2_f32, 0.8_f32, (120, 119, 198), 0.30_f32), (0.8, 0.2, (255, 119, 198), 0.30), (0.4, 0.4, (120, 219, 255), 0.20)]
+    {
+        let c = rect.min + egui::vec2(rect.width() * fx, rect.height() * fy);
+        let far = egui::vec2(rect.width() * fx.max(1.0 - fx), rect.height() * fy.max(1.0 - fy)).length();
+        let reach = far * 0.5;
+        let inner = Color32::from_rgba_unmultiplied(rgb.0, rgb.1, rgb.2, (alpha * 255.0) as u8);
+        let mut g = Mesh::default();
+        g.vertices.push(vertex(c, inner));
+        const STEPS: u32 = 64;
+        for i in 0..=STEPS {
+            let angle = std::f32::consts::TAU * i as f32 / STEPS as f32;
+            g.vertices.push(vertex(c + egui::vec2(angle.cos(), angle.sin()) * reach, Color32::TRANSPARENT));
+        }
+        for i in 1..=STEPS {
+            g.indices.extend([0, i, i + 1]);
+        }
+        painter.add(egui::Shape::mesh(g));
+    }
+    // The grid: lines 30 points apart from the top-left corner.
+    let line = Stroke::new(1.0, Color32::from_rgba_unmultiplied(255, 255, 255, 13));
+    let mut x = rect.left() + 0.5;
+    while x < rect.right() {
+        painter.vline(x, rect.y_range(), line);
+        x += 30.0;
+    }
+    let mut y = rect.top() + 0.5;
+    while y < rect.bottom() {
+        painter.hline(rect.x_range(), y, line);
+        y += 30.0;
+    }
+    // The inner shadow: solid for the 10 px spread, then fading over the 35 px blur.
+    let dark = |a: f32| Color32::from_rgba_unmultiplied(0, 0, 0, (a * 153.0) as u8);
+    let mut sh = Mesh::default();
+    for (from, to, a0, a1) in [(0.0_f32, 10.0_f32, 1.0_f32, 0.75_f32), (10.0, 45.0, 0.75, 0.0)] {
+        let (r, i0, i1) = (rect, from, to);
+        // top, bottom, left, right bands
+        quad(
+            &mut sh,
+            [
+                (egui::pos2(r.left(), r.top() + i0), dark(a0)),
+                (egui::pos2(r.right(), r.top() + i0), dark(a0)),
+                (egui::pos2(r.right(), r.top() + i1), dark(a1)),
+                (egui::pos2(r.left(), r.top() + i1), dark(a1)),
+            ],
+        );
+        quad(
+            &mut sh,
+            [
+                (egui::pos2(r.left(), r.bottom() - i1), dark(a1)),
+                (egui::pos2(r.right(), r.bottom() - i1), dark(a1)),
+                (egui::pos2(r.right(), r.bottom() - i0), dark(a0)),
+                (egui::pos2(r.left(), r.bottom() - i0), dark(a0)),
+            ],
+        );
+        quad(
+            &mut sh,
+            [
+                (egui::pos2(r.left() + i0, r.top()), dark(a0)),
+                (egui::pos2(r.left() + i1, r.top()), dark(a1)),
+                (egui::pos2(r.left() + i1, r.bottom()), dark(a1)),
+                (egui::pos2(r.left() + i0, r.bottom()), dark(a0)),
+            ],
+        );
+        quad(
+            &mut sh,
+            [
+                (egui::pos2(r.right() - i1, r.top()), dark(a1)),
+                (egui::pos2(r.right() - i0, r.top()), dark(a0)),
+                (egui::pos2(r.right() - i0, r.bottom()), dark(a0)),
+                (egui::pos2(r.right() - i1, r.bottom()), dark(a1)),
+            ],
+        );
+    }
+    painter.add(egui::Shape::mesh(sh));
+}
+
+/// The area round the pages: the brand backdrop in the Brand theme (`fill` is [`BRAND_CANVAS`]), else `fill`.
+pub fn paint_canvas_fill(painter: &egui::Painter, rect: egui::Rect, fill: Color32) {
+    if fill == BRAND_CANVAS {
+        paint_brand_backdrop(painter, rect);
+    } else {
+        painter.rect_filled(rect, 0.0, fill);
+    }
 }
 
 impl Tokens {

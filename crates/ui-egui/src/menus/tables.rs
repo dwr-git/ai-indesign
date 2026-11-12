@@ -637,16 +637,9 @@ pub const MENUS: &[(&str, &[&str])] = &[
     (
         "Help",
         &[
-            "ui:help.discord",
-            "-",
-            "ui:help.appPage",
-            "ui:help.github",
-            "ui:help.issues",
-            "ui:help.website",
-            "-",
+            // AI-InDesign works offline: no community, website or update links.
             "cmd:file.newSample",
             "-",
-            "ui:help.checkForUpdates",
             "ui:help.about",
         ],
     ),
